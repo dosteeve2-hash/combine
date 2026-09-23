@@ -109,6 +109,7 @@ jobs:
 
       - name: Captures en cas d'échec
         if: failure()
+        continue-on-error: true
         uses: actions/upload-artifact@v4
         with:
           name: captures-echec
