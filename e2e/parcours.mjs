@@ -91,10 +91,10 @@ async function inscrire(page, u) {
     .catch(() => null);
   await page.click('button[type="submit"]');
   const r = await reponse;
+  const corps = r ? await r.clone().json().catch(() => null) : null;
 
   if (r && !r.ok()) {
-    const corps = await r.text().catch(() => '');
-    throw new Error(`inscription de ${u.email} refusée : HTTP ${r.status()} ${corps.slice(0, 200)}`);
+    throw new Error(`inscription de ${u.email} refusée : HTTP ${r.status()}`);
   }
 
   try {
@@ -104,7 +104,17 @@ async function inscrire(page, u) {
       .locator('[role="alert"]')
       .innerText()
       .catch(() => '(aucun message)');
-    throw new Error(`inscription de ${u.email} sans redirection — message : ${alerte}`);
+    const etat = await page.evaluate(() => ({
+      chemin: location.pathname,
+      confirmations: [...document.querySelectorAll('[role="status"]')].map((element) => element.textContent),
+      boutonDesactive: document.querySelector('button[type="submit"]')?.hasAttribute('disabled') ?? false,
+    }));
+    const erreur = corps?.error;
+    throw new Error(
+      `inscription de ${u.email} sans redirection — HTTP ${r?.status() ?? 'aucune réponse'}, ` +
+        `erreur ${typeof erreur?.code === 'string' ? erreur.code : 'inconnue'}, ` +
+        `message : ${alerte}, état : ${JSON.stringify(etat)}`,
+    );
   }
 }
 
@@ -529,3 +539,4 @@ if (echecs.length) {
   echecs.forEach((e) => console.log(`  · ${e}`));
 }
 process.exit(echecs.length ? 1 : 0);
+
