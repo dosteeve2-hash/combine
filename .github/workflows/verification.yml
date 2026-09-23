@@ -68,7 +68,6 @@ jobs:
           --health-retries 5
 
     env:
-      NODE_ENV: development
       DATABASE_URL: postgresql://combine:combine_ci@127.0.0.1:5432/combine
       BETTER_AUTH_SECRET: secret-de-ci-sans-valeur-de-securite-32oc
       BETTER_AUTH_URL: http://localhost:3000
@@ -91,6 +90,8 @@ jobs:
         run: npm run build
 
       - name: Démarrer et attendre le serveur
+        env:
+          NODE_ENV: development
         run: |
           # Le build Production est vérifié juste avant; le parcours local n’a pas besoin de Resend.
           npm run dev -- --hostname 127.0.0.1 &
