@@ -121,8 +121,8 @@ async function inscrire(page, u) {
 }
 
 async function reconnecter(page, u) {
-  await page.locator('button[aria-label="Se déconnecter"]').click();
-  await page.waitForURL(`${BASE}/`, { timeout: 15000 });
+  await page.getByRole('button', { name: 'Me déconnecter' }).click();
+  await page.waitForURL(`${BASE}/connexion`, { timeout: 15000 });
   await page.goto(`${BASE}/connexion`, { waitUntil: 'networkidle' });
   await page.fill('input[name="email"]', u.email);
   await page.fill('input[name="motDePasse"]', u.mdp);
