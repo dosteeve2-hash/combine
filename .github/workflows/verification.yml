@@ -91,7 +91,8 @@ jobs:
 
       - name: Démarrer et attendre le serveur
         run: |
-          npm start &
+          # Le build Production est vérifié juste avant; le parcours local n’a pas besoin de Resend.
+          npm run dev -- --hostname 127.0.0.1 &
           until curl -sf -o /dev/null http://localhost:3000/; do sleep 2; done
 
       - name: Parcours complet
