@@ -68,6 +68,7 @@ jobs:
           --health-retries 5
 
     env:
+      NODE_ENV: development
       DATABASE_URL: postgresql://combine:combine_ci@127.0.0.1:5432/combine
       BETTER_AUTH_SECRET: secret-de-ci-sans-valeur-de-securite-32oc
       BETTER_AUTH_URL: http://localhost:3000
