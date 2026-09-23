@@ -1,0 +1,112 @@
+# Les vérifications de COMBINE, à chaque poussée.
+#
+# Ce fichier ne prend effet qu'une fois le projet extrait dans son propre dépôt
+# (GitHub ne lit `.github/` qu'à la racine). Il est livré avec le code pour que
+# la CI existe dès le premier commit là-bas.
+
+name: Vérification
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  verifier:
+    name: Types, lint, tests, build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Types
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Tests unitaires
+        run: npm test
+
+      - name: Build
+        # Les pages sont toutes dynamiques : le build n'interroge pas la base,
+        # mais `lib/db` refuse de se charger sans chaîne de connexion.
+        env:
+          DATABASE_URL: postgresql://build:build@127.0.0.1:5432/build
+          BETTER_AUTH_SECRET: chaine-de-build-sans-valeur-de-securite
+          BETTER_AUTH_URL: http://localhost:3000
+        run: npm run build
+
+      - name: Dépendances vulnérables
+        run: npm audit --omit=dev --audit-level=high
+
+  parcours:
+    name: Parcours navigateur
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: combine
+          POSTGRES_PASSWORD: combine_ci
+          POSTGRES_DB: combine
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: postgresql://combine:combine_ci@127.0.0.1:5432/combine
+      BETTER_AUTH_SECRET: secret-de-ci-sans-valeur-de-securite-32oc
+      BETTER_AUTH_URL: http://localhost:3000
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+
+      - name: Schéma
+        run: node db/migrer.mjs
+
+      - name: Build
+        run: npm run build
+
+      - name: Démarrer et attendre le serveur
+        run: |
+          npm start &
+          until curl -sf -o /dev/null http://localhost:3000/; do sleep 2; done
+
+      - name: Parcours complet
+        run: node e2e/parcours.mjs
+
+      - name: Accessibilité (WCAG 2.1 AA)
+        # Après le parcours : celui-ci vide la base, l'audit a besoin de pages
+        # remplies pour que les tableaux et les formulaires existent.
+        run: |
+          node scripts/semer-demo.mjs
+          node e2e/accessibilite.mjs
+
+      - name: Captures en cas d'échec
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: captures-echec
+          path: e2e/echec-*.png
+          if-no-files-found: ignore
+
