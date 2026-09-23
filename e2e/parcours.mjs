@@ -79,7 +79,9 @@ async function nouveauContexte() {
 }
 
 async function inscrire(page, u) {
-  await page.goto(`${BASE}/inscription`, { waitUntil: 'domcontentloaded' });
+  // En mode développement, Next peut avoir livré le HTML avant les bundles React.
+  // Attendre la fin des requêtes initiales évite de cliquer avant l’hydratation.
+  await page.goto(`${BASE}/inscription`, { waitUntil: 'networkidle' });
   await page.fill('input[name="nom"]', u.nom);
   await page.fill('input[name="email"]', u.email);
   await page.fill('input[name="motDePasse"]', u.mdp);
@@ -121,7 +123,7 @@ async function inscrire(page, u) {
 async function reconnecter(page, u) {
   await page.locator('button[aria-label="Se déconnecter"]').click();
   await page.waitForURL(`${BASE}/`, { timeout: 15000 });
-  await page.goto(`${BASE}/connexion`, { waitUntil: 'domcontentloaded' });
+  await page.goto(`${BASE}/connexion`, { waitUntil: 'networkidle' });
   await page.fill('input[name="email"]', u.email);
   await page.fill('input[name="motDePasse"]', u.mdp);
   await Promise.all([
