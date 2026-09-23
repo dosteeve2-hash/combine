@@ -45,25 +45,29 @@ export function FormulaireAuth({ mode, verificationEmailConfiguree, inscriptionD
     }
 
     setEnCours(true);
-    const resultat = inscription
-      ? await signUp.email({ name: nom.trim(), email: email.trim().toLowerCase(), password: motDePasse })
-      : await signIn.email({ email: email.trim().toLowerCase(), password: motDePasse });
+    try {
+      const resultat = inscription
+        ? await signUp.email({ name: nom.trim(), email: email.trim().toLowerCase(), password: motDePasse })
+        : await signIn.email({ email: email.trim().toLowerCase(), password: motDePasse });
 
-    if (resultat.error) {
-      const code = resultat.error.code ?? '';
-      setErreur(messages[code] ?? resultat.error.message ?? 'Une erreur est survenue. Réessayez.');
+      if (resultat.error) {
+        const code = resultat.error.code ?? '';
+        setErreur(messages[code] ?? resultat.error.message ?? 'Une erreur est survenue. Réessayez.');
+        return;
+      }
+
+      if (inscription && verificationEmailConfiguree) {
+        setConfirmation('Compte créé. Ouvrez le lien de confirmation envoyé à cette adresse e-mail.');
+        return;
+      }
+
+      router.push('/tableau-de-bord');
+      router.refresh();
+    } catch {
+      setErreur('Le service est momentanément inaccessible. Vérifiez votre connexion et réessayez.');
+    } finally {
       setEnCours(false);
-      return;
     }
-
-    if (inscription && verificationEmailConfiguree) {
-      setConfirmation('Compte créé. Ouvrez le lien de confirmation envoyé à cette adresse e-mail.');
-      setEnCours(false);
-      return;
-    }
-
-    router.push('/tableau-de-bord');
-    router.refresh();
   }
 
   return (
@@ -153,3 +157,4 @@ export function FormulaireAuth({ mode, verificationEmailConfiguree, inscriptionD
     </form>
   );
 }
+
