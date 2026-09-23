@@ -1,6 +1,3 @@
-Warning: truncated output (original token count: 4041)
-Total output lines: 299
-
 # COMBINE — du prototype au capital
 
 > La plateforme qui relie les porteurs de projets africains, les incubateurs qui les
@@ -163,7 +160,9 @@ node -e "console.log(require('crypto').randomBytes(32).toString('base64url'))"
 | `RESEND_API_KEY` | Facultative — active l’envoi des liens de vérification par Resend |
 | `RESEND_FROM_EMAIL` | Facultative — adresse expéditrice vérifiée chez Resend, à configurer avec la clé |
 
-Sans les deux variables Resend, l’inscription fonctionne pour …41 tokens truncated…xistants doivent rester privés et leurs identifiants ne sont jamais publiés dans
+Sans les deux variables Resend, l’inscription fonctionne pour la démonstration, mais les invitations
+qui exigent une adresse vérifiée ne peuvent pas être acceptées par un nouveau compte. Les comptes
+de démonstration existants doivent rester privés et leurs identifiants ne sont jamais publiés dans
 ce dépôt.
 
 ## Activer un abonnement
