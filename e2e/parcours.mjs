@@ -91,7 +91,7 @@ async function inscrire(page, u) {
     .catch(() => null);
   await page.click('button[type="submit"]');
   const r = await reponse;
-  const corps = r ? await r.clone().json().catch(() => null) : null;
+  const corps = r ? await r.json().catch(() => null) : null;
 
   if (r && !r.ok()) {
     throw new Error(`inscription de ${u.email} refusée : HTTP ${r.status()}`);
