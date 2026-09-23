@@ -1,0 +1,46 @@
+{
+  "name": "combine",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:parcours": "node --env-file=.env.local e2e/parcours.mjs",
+    "verifier": "npm run typecheck && npm run lint && npm run test && npm run build",
+    "db:migrer": "node --env-file=.env.local db/migrer.mjs",
+    "plan:activer": "node --env-file=.env.local scripts/activer-plan.mjs",
+    "demo:semer": "node --env-file=.env.local scripts/semer-demo.mjs",
+    "test:a11y": "node --env-file=.env.local e2e/accessibilite.mjs"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^1.1.0",
+    "better-auth": "^1.7.5",
+    "lucide-react": "^1.47.0",
+    "next": "16.3.5",
+    "pg": "^8.23.0",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^22.20.4",
+    "@types/pg": "^8.23.1",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "axe-core": "^4.13.0",
+    "eslint": "^9",
+    "eslint-config-next": "16.3.5",
+    "playwright": "^1.63.0",
+    "tailwindcss": "^4",
+    "tsx": "^4.23.15",
+    "typescript": "^5",
+    "vitest": "^5.0.1"
+  },
+  "description": "COMBINE — du prototype au capital. La plateforme qui relie porteurs de projets africains, incubateurs et financeurs."
+}
