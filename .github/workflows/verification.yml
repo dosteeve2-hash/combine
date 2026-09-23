@@ -1,15 +1,17 @@
-# Les vérifications de COMBINE, à chaque poussée.
-#
-# Ce fichier ne prend effet qu'une fois le projet extrait dans son propre dépôt
-# (GitHub ne lit `.github/` qu'à la racine). Il est livré avec le code pour que
-# la CI existe dès le premier commit là-bas.
+# Les vérifications de COMBINE pour les pull requests et les changements du projet.
 
 name: Vérification
 
 on:
   push:
     branches: [main, master]
+    paths:
+      - 'package.json'
+      - 'package-lock.json'
+      - 'app/**'
+      - 'lib/**'
   pull_request:
+    branches: [main, master]
 
 jobs:
   verifier:
