@@ -51,7 +51,18 @@ async function connecter(email) {
     reducedMotion: 'reduce',
   });
   const page = await ctx.newPage();
-  await page.goto(`${BASE}/connexion`, { waitUntil: 'domcontentloaded' });
+  // `domcontentloaded` rend la main avant l'hydratation de React. Le formulaire
+  // est un composant client : tant qu'il n'est pas hydraté, le clic sur
+  // « Se connecter » ne déclenche rien et aucune requête ne part. La première
+  // connexion passait quand même, parce que le serveur de développement
+  // compilait encore /connexion — trois secondes qui laissaient le temps à
+  // l'hydratation. Une fois la page compilée, elle arrive en 100 ms et toutes
+  // les connexions suivantes perdent la course. C'est ce qui faisait échouer
+  // l'audit sur le deuxième compte, jamais sur le premier.
+  //
+  // `e2e/parcours.mjs` attend déjà `networkidle` pour ses connexions (l. 84 et
+  // 126) et ne connaît pas ce défaut. On s'aligne sur lui.
+  await page.goto(`${BASE}/connexion`, { waitUntil: 'networkidle' });
   await page.fill('input[name="email"]', email);
   await page.fill('input[name="motDePasse"]', MDP_DEMO);
   await Promise.all([
