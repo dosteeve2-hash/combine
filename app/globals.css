@@ -1,0 +1,250 @@
+@import "tailwindcss";
+
+/* Charte SDC (CLAUDE.md). Deux valeurs s'écartent de la charte écrite, et
+ * l'audit d'accessibilité dit pourquoi — mesures reproductibles par
+ * `npm run test:a11y` :
+ *
+ *   --text3  #4e5f82 → 3,01 : 1 sur --bg et 2,63 : 1 sur --bg3, là où WCAG 2.1
+ *            AA exige 4,5 : 1. Or ce jeton porte TOUTES les étiquettes de
+ *            l'application. Corrigé à #7488b0 → 5,40 / 5,11 / 4,72.
+ *   --red    #ef4444 → 4,47 : 1 sur --bg3 : un message d'erreur dans une carte
+ *            passe juste en dessous. Corrigé à #f15757 → 5,72 / 5,41 / 5,00.
+ *
+ * Les deux touchent les onze produits de l'écosystème, pas seulement COMBINE :
+ * à remonter dans la charte plutôt qu'à laisser diverger ici. */
+:root {
+  --bg: #070e1f;
+  --bg2: #0c1528;
+  --bg3: #111d34;
+  --text: #f5f0e8;
+  --text2: #9ba8c4;
+  --text3: #7488b0;
+  --gold: #f0a832;
+  --gold2: #f7c060;
+  --gold3: #c07d10;
+  --cyan: #2dd4ff;
+  --green: #22d98a;
+  --red: #f15757;
+  --border: #16233d;
+  --border2: #1f3054;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-bg2: var(--bg2);
+  --color-bg3: var(--bg3);
+  --color-text: var(--text);
+  --color-text2: var(--text2);
+  --color-text3: var(--text3);
+  --color-gold: var(--gold);
+  --color-gold2: var(--gold2);
+  --color-gold3: var(--gold3);
+  --color-cyan: var(--cyan);
+  --color-green: var(--green);
+  --color-red: var(--red);
+  --color-line: var(--border);
+  --color-line2: var(--border2);
+
+  --font-serif: var(--police-titre), Georgia, serif;
+  --font-sans: var(--police-corps), system-ui, sans-serif;
+  --font-mono: var(--police-mono), ui-monospace, monospace;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    color-scheme: dark;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-weight: 300;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection {
+    background: var(--gold);
+    color: var(--bg);
+  }
+
+  ::-webkit-scrollbar {
+    width: 3px;
+    height: 3px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--bg);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--gold3);
+    border-radius: 99px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--gold);
+  }
+}
+
+/* ---------------------------------------------------------------- primitives */
+/* Ces classes doivent rester SOUS les utilitaires Tailwind : sans la couche
+ * `components`, `.bouton { display: inline-flex }` écraserait `hidden`, et un
+ * bouton « caché sur mobile » resterait visible. Le débordement horizontal de
+ * 19 px trouvé au test navigateur venait exactement de là. */
+@layer components {
+  .titre {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+  }
+
+  .mono {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .etiquette {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text3);
+  }
+
+  .carte {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+  }
+
+  .champ {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border2);
+    border-radius: 10px;
+    padding: 0.625rem 0.875rem;
+    color: var(--text);
+    font-size: 0.9375rem;
+    transition:
+      border-color 0.15s,
+      box-shadow 0.15s;
+  }
+  .champ::placeholder {
+    color: var(--text3);
+  }
+  .champ:focus {
+    outline: none;
+    border-color: var(--gold3);
+    box-shadow: 0 0 0 3px rgb(240 168 50 / 0.12);
+  }
+  .champ:disabled {
+    opacity: 0.5;
+  }
+  textarea.champ {
+    resize: vertical;
+    min-height: 6rem;
+    line-height: 1.65;
+  }
+  select.champ {
+    appearance: none;
+    background-image:
+      linear-gradient(45deg, transparent 50%, var(--text3) 50%),
+      linear-gradient(135deg, var(--text3) 50%, transparent 50%);
+    background-position:
+      calc(100% - 18px) calc(50% + 2px),
+      calc(100% - 13px) calc(50% + 2px);
+    background-size:
+      5px 5px,
+      5px 5px;
+    background-repeat: no-repeat;
+    padding-right: 2.25rem;
+  }
+
+  .bouton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: 10px;
+    padding: 0.625rem 1.125rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.15s;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .bouton:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  .bouton-or {
+    background: var(--gold);
+    color: var(--bg);
+    font-weight: 600;
+  }
+  .bouton-or:hover:not(:disabled) {
+    background: var(--gold2);
+    transform: translateY(-1px);
+  }
+
+  .bouton-contour {
+    border: 1px solid var(--border2);
+    color: var(--text);
+    background: transparent;
+  }
+  .bouton-contour:hover:not(:disabled) {
+    border-color: var(--gold3);
+    color: var(--gold);
+  }
+
+  .bouton-discret {
+    color: var(--text2);
+    background: transparent;
+  }
+  .bouton-discret:hover:not(:disabled) {
+    color: var(--text);
+    background: var(--bg3);
+  }
+
+  /* Souligné par défaut, et pas seulement au survol : au milieu d'un
+   * paragraphe, la couleur seule ne distingue pas un lien pour qui ne
+   * perçoit pas l'or (WCAG 1.4.1). */
+  .lien-or {
+    color: var(--gold);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+  }
+  .lien-or:hover {
+    color: var(--gold2);
+    text-decoration-thickness: 2px;
+  }
+}
+/* -------------------------------------------------------------- animations */
+
+@keyframes apparait {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.apparait {
+  animation: apparait 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

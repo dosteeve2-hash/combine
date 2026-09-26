@@ -62,7 +62,7 @@ jobs:
           POSTGRES_DB: combine
         ports: ['5432:5432']
         options: >-
-          --health-cmd pg_isready
+          --health-cmd "pg_isready -U combine -d combine"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -90,6 +90,8 @@ jobs:
         run: npm run build
 
       - name: Démarrer et attendre le serveur
+        env:
+          NODE_ENV: development
         run: |
           # Le build Production est vérifié juste avant; le parcours local n’a pas besoin de Resend.
           npm run dev -- --hostname 127.0.0.1 &
@@ -101,12 +103,25 @@ jobs:
       - name: Accessibilité (WCAG 2.1 AA)
         # Après le parcours : celui-ci vide la base, l'audit a besoin de pages
         # remplies pour que les tableaux et les formulaires existent.
+        #
+        # Le semeur exige une confirmation explicite et un mot de passe d'au moins
+        # 16 caractères — deux garde-fous posés par la revue de sécurité. Ils sont
+        # déclarés ici, sur l'étape, et non sur le job : rien d'autre ne doit
+        # pouvoir semer une base par inadvertance.
+        #
+        # Cette valeur n'est pas un secret. Elle ne vaut que pour la base Postgres
+        # éphémère du runner, détruite à la fin du job, et `exigerCibleLocale()`
+        # refuse de toute façon toute base qui ne serait pas locale.
+        env:
+          COMBINE_ALLOW_DEMO_SEED: 'true'
+          COMBINE_DEMO_PASSWORD: mot-de-passe-de-ci-sans-valeur-de-securite
         run: |
           node scripts/semer-demo.mjs
           node e2e/accessibilite.mjs
 
       - name: Captures en cas d'échec
         if: failure()
+        continue-on-error: true
         uses: actions/upload-artifact@v4
         with:
           name: captures-echec

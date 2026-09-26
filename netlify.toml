@@ -1,0 +1,26 @@
+# COMBINE sur Netlify.
+#
+# Le Next Runtime v5 est détecté et installé automatiquement : il transforme les
+# Server Components et les Server Actions en fonctions Netlify. Rien à configurer
+# de plus que la commande de build.
+
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "22"
+  # Chromium est fourni par l'environnement de CI ; Playwright n'a rien à télécharger
+  # pendant le build du site.
+  PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD = "1"
+
+# Les en-têtes de sécurité sont déjà posés par next.config.ts sur toutes les routes ;
+# on les redéclare ici pour les fichiers servis directement par le CDN, qui ne passent
+# pas par Next.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
