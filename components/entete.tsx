@@ -41,7 +41,7 @@ export async function Entete() {
               <Link href="/tableau-de-bord" className="bouton bouton-contour">
                 Mon espace
               </Link>
-              <BoutonDeconnexion />
+              <BoutonDeconnexion className="bouton bouton-or" iconeSeule />
             </>
           ) : (
             <>

@@ -165,22 +165,30 @@ try {
     await ctx.close();
   }
 
-  console.log('\nEspace structure (fabrique@demo.combine.africa)');
+  /* Une seule session « structure » pour les deux blocs qui suivent.
+   *
+   * Le script se connectait une cinquième fois ici, et `next start` tombait sur
+   * le limiteur de débit de Better Auth — actif en production, et plus strict
+   * sur `/sign-in/email` que sur le reste : la connexion n'aboutissait jamais et
+   * l'audit mourait sur un `waitForURL: Timeout 30000ms exceeded`.
+   *
+   * Réouvrir une session qu'on détient déjà n'apportait rien. On garde le même
+   * contexte : un aller-retour d'authentification de moins, et le limiteur —
+   * qui fait exactement son travail — n'est plus provoqué par nos propres tests. */
   {
     const { ctx, page } = await connecter(`fabrique@demo.combine.africa`);
+
+    console.log('\nEspace structure (fabrique@demo.combine.africa)');
     const { rows } = await client.query('select id from appel order by cree_le limit 1');
     const chemins = ['/programme', '/portefeuille', '/tableau-de-bord'];
     if (rows[0]) chemins.push(`/programme/appel/${rows[0].id}`);
     for (const chemin of chemins) await auditer(page, chemin, 1280);
-    await ctx.close();
-  }
 
-  console.log('\nDébordement horizontal à 375px (filtre 3 : un Android d’entrée de gamme)');
-  {
-    const { ctx, page } = await connecter(`fabrique@demo.combine.africa`);
+    console.log('\nDébordement horizontal à 375px (filtre 3 : un Android d’entrée de gamme)');
     for (const chemin of ['/', '/tarifs', '/programme', '/portefeuille', '/tableau-de-bord']) {
       await verifierDebordement(page, chemin);
     }
+
     await ctx.close();
   }
 } finally {
