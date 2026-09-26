@@ -1,28 +1,48 @@
 import type { Metadata, Viewport } from 'next';
-import { Playfair_Display, Outfit, JetBrains_Mono } from 'next/font/google';
+import localFont from 'next/font/local';
 import { brand } from '@/lib/brand';
 import './globals.css';
 
-const playfair = Playfair_Display({
-  subsets: ['latin'],
+/*
+ * Polices auto-hébergées — voir `app/polices/LICENCES.md`.
+ *
+ * `next/font/google` télécharge les fichiers pendant `next build`. Le 23/09/2026
+ * c'est ce qui a fait tomber la CI de la PR #1 : le remplaceur de polices de
+ * Turbopack a échoué sur JetBrains Mono et le build s'est arrêté sur un
+ * `module-not-found` sans rapport avec le code. Un build qui dépend d'un service
+ * tiers n'est pas reproductible.
+ *
+ * Ce sont des polices **variables** : un seul fichier couvre tout l'axe de
+ * graisse, d'où `weight: '400 900'` plutôt qu'une liste. Quatre fichiers,
+ * 139 Ko, contre douze sans cela.
+ */
+const playfair = localFont({
   variable: '--police-titre',
-  weight: ['700', '800', '900'],
-  style: ['italic', 'normal'],
   display: 'swap',
+  // Playfair sert à la fois aux titres romains et à la signature italique.
+  src: [
+    { path: './polices/playfair-display.woff2', weight: '400 900', style: 'normal' },
+    { path: './polices/playfair-display-italic.woff2', weight: '400 900', style: 'italic' },
+  ],
+  // Mesurée sur Georgia, la police à empattement la plus répandue : limite le
+  // saut de mise en page pendant le `swap`.
+  fallback: ['Georgia', 'Times New Roman', 'serif'],
+  adjustFontFallback: 'Times New Roman',
 });
 
-const outfit = Outfit({
-  subsets: ['latin'],
+const outfit = localFont({
   variable: '--police-corps',
-  weight: ['300', '400', '500', '600'],
   display: 'swap',
+  src: [{ path: './polices/outfit.woff2', weight: '100 900', style: 'normal' }],
+  fallback: ['system-ui', 'Segoe UI', 'Helvetica Neue', 'Arial', 'sans-serif'],
+  adjustFontFallback: 'Arial',
 });
 
-const mono = JetBrains_Mono({
-  subsets: ['latin'],
+const mono = localFont({
   variable: '--police-mono',
-  weight: ['400', '500'],
   display: 'swap',
+  src: [{ path: './polices/jetbrains-mono.woff2', weight: '100 800', style: 'normal' }],
+  fallback: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Consolas', 'monospace'],
 });
 
 export const metadata: Metadata = {
