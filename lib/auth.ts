@@ -14,7 +14,7 @@ if (typeof WebSocket !== 'undefined') {
   neonConfig.webSocketConstructor = WebSocket;
 }
 
-const base = postgresOrdinaire
+const base = postgresOrdinaire()
   ? new PoolPg({ connectionString: process.env.DATABASE_URL, max: 5 })
   : new PoolNeon({ connectionString: process.env.DATABASE_URL });
 
