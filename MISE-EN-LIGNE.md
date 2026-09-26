@@ -4,14 +4,42 @@
 
 ## État actuel
 
-- Code local : `codex/combine-ready`, dans `C:\Users\pc\Ambition\.claude\worktrees\combine-codex-2026-09-23\projets\combine`.
-- Le dépôt privé `dosteeve2-hash/combine` a été créé. La copie locale `C:\Users\pc\Documents\GitHub\combine` a été synchronisée et commitée sur `main`; ce commit n’a pas été poussé, et le dépôt distant est toujours vide. Le hash courant est visible avec `git log -1` dans cette copie.
-- Le push GitHub a échoué car l’autorisation OAuth locale de `gh` n’inclut pas le scope `workflow`, requis pour publier `.github/workflows/verification.yml`.
-- Le projet Vercel `combine` existe et est lié au dépôt GitHub, mais aucun secret n’y a été transféré et aucun déploiement n’a été lancé.
-- La base Neon mentionnée dans les notes Claude n’a pas été contactée. Aucune migration, réinitialisation ni écriture n’a été faite.
-- Vérifications finales locales : TypeScript, ESLint, 93 tests unitaires, `npm audit` (0 vulnérabilité), build, syntaxe PowerShell et tests du script de déploiement réussis.
-- Le build utilisait une URL Postgres factice et Better Auth a signalé qu’il ne pouvait pas valider le schéma : il ne valide pas la connexion Neon ni le parcours d’authentification.
-- Aucun test E2E sur base locale ou navigateur n’a pu être lancé ; Postgres local est absent.
+> Mesuré le 26/09/2026. La section précédente datait du 23 et affirmait trois choses
+> devenues fausses : que le dépôt distant était vide, qu'aucun déploiement n'avait été
+> lancé, et qu'aucun test navigateur n'avait pu tourner.
+
+- **Le code est sur GitHub.** `dosteeve2-hash/combine`, branche `codex/combine-ready`,
+  PR #1 ouverte vers `main`. 97 fichiers, ~19 300 lignes. `main` ne porte encore que le
+  README : **tant que la PR #1 n'est pas fusionnée, le dépôt paraît vide.**
+- **Le scope `workflow` n'est plus un obstacle** : `.github/workflows/verification.yml`
+  est sur GitHub et s'exécute à chaque poussée.
+- **La CI GitHub est verte** sur `74128f9`, pour la première fois : types, lint,
+  93 tests, build, parcours navigateur (70 vérifications) et audit d'accessibilité
+  (20 passages d'axe, aucune violation WCAG 2.1 AA).
+- **Les tests E2E tournent.** Le runner monte un Postgres 16 en service ; ils ont aussi
+  été rejoués sur un Postgres local le 26/09. La phrase « Postgres local est absent »
+  ne vaut plus.
+- **Vercel est lié au dépôt et déploie déjà.** Trois déploiements existent, et
+  **les trois ont échoué** — deux en `ERROR`, un en `BLOCKED`.
+
+### Pourquoi le déploiement Vercel échoue, exactement
+
+Journal de build du déploiement `dpl_7g9VqMnbaw7xToAM4hkZjiniW5Us` :
+
+```
+Error: DATABASE_URL est absent. Copie .env.example vers .env.local et renseigne la chaîne Postgres.
+    at lib/db.ts:5:9
+Error: Failed to collect page data for /api/appel/[id]/export
+Error: Command "npm run build" exited with 1
+```
+
+**Ce n'est pas un défaut du code.** `lib/db.ts` refuse volontairement de démarrer sans
+chaîne de connexion, et Next.js collecte les données de page au build : la route
+d'export touche la base, donc le build s'arrête. Le garde-fou fait son travail.
+
+**Il manque donc uniquement les variables d'environnement sur Vercel** — rien d'autre
+n'est identifié comme bloquant. Ce sont des actions de production : elles appartiennent
+à Steve seul, aucune automatisation ne les pose à sa place.
 
 ## Déploiement
 
