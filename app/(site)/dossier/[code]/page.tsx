@@ -1,13 +1,12 @@
 import type { Metadata } from 'next';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { Info, ShieldCheck } from 'lucide-react';
 import { sql } from '@/lib/db';
 import { STADES } from '@/lib/brand';
 import { mentionScore } from '@/lib/score';
-import { investisseurVerifie } from '@/lib/portefeuille';
 import { AnneauScore } from '@/components/panneau-score';
-import { FormulaireInteret } from '@/components/formulaire-interet';
 import { organisationDe, sessionActuelle } from '@/lib/session';
+import { investisseurVerifie } from '@/lib/portefeuille';
 import type { Dossier, Publication } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
@@ -46,11 +45,15 @@ export async function generateMetadata({
 const dateLongue = (v: string) =>
   new Date(v).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
 
-const montant = (v: string | number | null) =>
-  v === null || Number(v) === 0 ? null : `${Number(v).toLocaleString('fr-FR')} FCFA`;
-
 export default async function PageDossier({ params }: { params: Promise<{ code: string }> }) {
   const { code } = await params;
+  const session = await sessionActuelle();
+  const appartenance =
+    session?.user.emailVerified === true ? await organisationDe(session.user.id) : null;
+  if (investisseurVerifie(session?.user.emailVerified, appartenance?.role)) {
+    redirect(`/flux/${code}`);
+  }
+
   const donnees = await charger(code);
   if (!donnees) notFound();
 
@@ -59,18 +62,6 @@ export default async function PageDossier({ params }: { params: Promise<{ code: 
   const premiere = publications[publications.length - 1];
   const mention = mentionScore(derniere?.score ?? 0);
 
-  const session = await sessionActuelle();
-  const appartenance =
-    session?.user.emailVerified === true ? await organisationDe(session.user.id) : null;
-  const investisseurAutorise = investisseurVerifie(session?.user.emailVerified, appartenance?.role);
-  let dejaInteresse = false;
-  if (session?.user && investisseurAutorise) {
-    const lignes = (await sql`
-      select 1 from interet where dossier_id = ${d.id} and user_id = ${session.user.id}
-    `) as unknown[];
-    dejaInteresse = lignes.length > 0;
-  }
-
   const blocs = [
     { titre: 'Le problème', texte: d.probleme },
     { titre: 'La solution', texte: d.solution },
@@ -78,15 +69,12 @@ export default async function PageDossier({ params }: { params: Promise<{ code: 
     { titre: 'Le modèle économique', texte: d.modele },
     { titre: 'La concurrence', texte: d.concurrence },
     { titre: 'L’équipe', texte: d.equipe_description },
-    ...(investisseurAutorise ? [{ titre: 'Usage des fonds recherchés', texte: d.usage_des_fonds }] : []),
   ].filter((b) => b.texte);
 
   const faits = [
-    { l: 'Chiffre d’affaires mensuel', v: montant(d.ca_mensuel_fcfa) },
     { l: 'Clients actifs', v: d.clients_actifs ? String(d.clients_actifs) : null },
     { l: 'Taille de l’équipe', v: d.equipe_taille ? `${d.equipe_taille} personnes` : null },
     { l: 'Année de démarrage', v: d.annee_creation ? String(d.annee_creation) : null },
-    ...(investisseurAutorise ? [{ l: 'Montant recherché', v: montant(d.besoin_fcfa) }] : []),
     { l: 'Entreprise formalisée', v: d.formalise ? 'Oui (RCCM / IFU)' : null },
   ].filter((f) => f.v);
 
@@ -209,19 +197,10 @@ export default async function PageDossier({ params }: { params: Promise<{ code: 
             </p>
           </section>
 
-          {investisseurAutorise ? (
-            <FormulaireInteret
-              dossierId={d.id}
-              connecte
-              dejaInteresse={dejaInteresse}
-              nomProjet={d.nom}
-            />
-          ) : (
-            <p className="carte p-5 text-sm leading-relaxed text-[var(--text2)]">
-              Cette page conserve l&rsquo;historique vérifiable des informations publiées par le
-              porteur. Les détails de financement sont réservés aux membres investisseurs invités.
-            </p>
-          )}
+          <p className="carte p-5 text-sm leading-relaxed text-[var(--text2)]">
+            Cette page conserve l’historique des informations publiées par le porteur. Les détails
+            de financement et les actions réservées aux membres restent dans les espaces privés.
+          </p>
         </aside>
       </div>
     </div>

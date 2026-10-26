@@ -1,8 +1,8 @@
 export const brand = {
   nom: 'COMBINE',
-  baseline: 'Du prototype au capital.',
+  baseline: "Votre projet, en un dossier qu'un financeur peut vérifier.",
   description:
-    "COMBINE réunit au même endroit les porteurs de projets africains, les incubateurs qui les accompagnent et les financeurs qui les cherchent.",
+    'COMBINE aide à structurer les informations d’un projet et à conserver un historique horodaté de ses publications.',
   editeur: 'FORGE Afrika',
   auteur: 'Steve Donald Compaoré',
   contactEmail: 'docompaore2@gmail.com',
