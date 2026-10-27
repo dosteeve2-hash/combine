@@ -297,3 +297,6 @@ Trois failles trouvées et fermées avant la première mise en ligne, chacune av
 ---
 
 *FORGE Afrika — l'infrastructure logicielle de l'industrialisation africaine.*
+## Licence
+
+Tous droits réservés (voir LICENSE).
