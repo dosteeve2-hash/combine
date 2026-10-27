@@ -1,4 +1,6 @@
-# COMBINE — du prototype au capital
+<p align="center"><img src="public/brand/mark.svg" alt="COMBINE" width="72" height="72"></p>
+
+<h1 align="center">COMBINE — du prototype au capital</h1>
 
 > La plateforme qui relie les porteurs de projets africains, les incubateurs qui les
 > accompagnent et les financeurs qui les cherchent.
