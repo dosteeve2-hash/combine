@@ -8,7 +8,7 @@ export default function LayoutAuth({ children }: { children: React.ReactNode }) 
       <header className="border-b border-[var(--border)]">
         <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-5">
           <Logo />
-          <Link href="/" className="mono text-xs text-[var(--text3)] hover:text-[var(--gold)]">
+          <Link href="/" className="mono inline-flex min-h-11 items-center text-xs text-[var(--text3)] hover:text-[var(--gold)]">
             ← Retour au site
           </Link>
         </div>

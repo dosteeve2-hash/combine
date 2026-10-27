@@ -30,7 +30,6 @@ export function AnneauScore({ score, taille = 116 }: { score: number; taille?: n
           strokeLinecap="round"
           strokeDasharray={circonference}
           strokeDashoffset={circonference * (1 - Math.min(100, score) / 100)}
-          style={{ transition: 'stroke-dashoffset 0.6s cubic-bezier(0.22,1,0.36,1), stroke 0.3s' }}
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">

@@ -1,33 +1,14 @@
 import type { Metadata, Viewport } from 'next';
+import { Familjen_Grotesk } from 'next/font/google';
 import localFont from 'next/font/local';
 import { brand } from '@/lib/brand';
 import './globals.css';
 
-/*
- * Polices auto-hébergées — voir `app/polices/LICENCES.md`.
- *
- * `next/font/google` télécharge les fichiers pendant `next build`. Le 23/09/2026
- * c'est ce qui a fait tomber la CI de la PR #1 : le remplaceur de polices de
- * Turbopack a échoué sur JetBrains Mono et le build s'est arrêté sur un
- * `module-not-found` sans rapport avec le code. Un build qui dépend d'un service
- * tiers n'est pas reproductible.
- *
- * Ce sont des polices **variables** : un seul fichier couvre tout l'axe de
- * graisse, d'où `weight: '400 900'` plutôt qu'une liste. Quatre fichiers,
- * 139 Ko, contre douze sans cela.
- */
-const playfair = localFont({
+const familjen = Familjen_Grotesk({
   variable: '--police-titre',
   display: 'swap',
-  // Playfair sert à la fois aux titres romains et à la signature italique.
-  src: [
-    { path: './polices/playfair-display.woff2', weight: '400 900', style: 'normal' },
-    { path: './polices/playfair-display-italic.woff2', weight: '400 900', style: 'italic' },
-  ],
-  // Mesurée sur Georgia, la police à empattement la plus répandue : limite le
-  // saut de mise en page pendant le `swap`.
-  fallback: ['Georgia', 'Times New Roman', 'serif'],
-  adjustFontFallback: 'Times New Roman',
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
 });
 
 const outfit = localFont({
@@ -62,7 +43,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: '#070e1f',
+  themeColor: '#f7f5f0',
   width: 'device-width',
   initialScale: 1,
 };
@@ -71,7 +52,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html
       lang="fr"
-      className={`${playfair.variable} ${outfit.variable} ${mono.variable} h-full antialiased`}
+      className={`${familjen.variable} ${outfit.variable} ${mono.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">{children}</body>
     </html>
