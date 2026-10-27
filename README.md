@@ -7,6 +7,8 @@
 >
 > Un produit **FORGE Afrika** · Steve Donald Compaoré
 
+> **Statut : prototype de démonstration.** Le code est complet pour les parcours décrits ci-dessous et testé en local, mais aucune structure ni aucun porteur réel n'utilise COMBINE, aucun abonnement n'est actif et aucune mise en production publique n'est annoncée. Les tarifs ci-dessous sont prévus, pas encaissés.
+
 ---
 
 ## Le problème
@@ -57,7 +59,7 @@ Un interlocuteur autorisé ne voit donc pas seulement vos chiffres, il voit **de
 | Qu'un contenu identique a été déposé à cette date | L'exactitude des chiffres eux-mêmes |
 | Que l'historique n'a pas été réécrit après coup | COMBINE n'audite pas les comptes |
 
-C'est la même idée que le *passeport du cheptel* de LivestockOS, appliquée à une entreprise.
+C'est la même idée que le *passeport du cheptel* de Livestock, appliquée à une entreprise.
 
 ## Limites de la plateforme
 
@@ -78,9 +80,7 @@ Voir `/cadre-legal`.
 
 ## La passerelle FORGE
 
-Un porteur qui tient déjà ses chiffres dans AgroTrack, LivestockOS ou CompTrack ne les retape pas :
-il génère un jeton dans COMBINE, le colle dans l'autre application, et ses chiffres réels arrivent
-datés. Le jeton n'est stocké qu'en **empreinte SHA-256** et n'est affiché qu'une fois.
+**Prévu :** un porteur qui tient déjà ses chiffres dans AgroTrack, Livestock ou CompTrack ne les retapera pas : il génère un jeton dans COMBINE, le colle dans l'autre application, et ses chiffres arrivent datés. **Côté COMBINE, le jeton et l'endpoint existent ; AgroTrack, Livestock et CompTrack n'envoient encore rien** (aucun connecteur dans leur code). Le jeton n'est stocké qu'en **empreinte SHA-256** et n'est affiché qu'une fois.
 
 Rien n'est appliqué automatiquement : chaque envoi est présenté au porteur, qui décide de le
 reprendre. Une application extérieure alimente son dossier, elle ne le réécrit pas dans son dos.
@@ -91,10 +91,9 @@ Authorization: Bearer cmb_…
 { "source": "livestockos", "ca_mensuel_fcfa": 450000, "clients_actifs": 12, "employes": 4 }
 ```
 
-C'est le seul avantage de COMBINE qu'un concurrent ne peut pas copier : il lui faudrait posséder
-aussi les applications d'en face.
+C'est l'avantage visé : un concurrent devrait posséder aussi les applications d'en face. Il ne sera acquis qu'une fois les connecteurs construits.
 
-## Le modèle
+## Le modèle (prévu)
 
 Gratuit pour les porteurs. Payant pour les structures dont l'accompagnement est le métier.
 
@@ -102,7 +101,7 @@ Gratuit pour les porteurs. Payant pour les structures dont l'accompagnement est 
 |---|---|---|---|
 | **Essai** | Voir si l'outil convient | Gratuit | 1 appel · 10 dossiers · 2 membres |
 | **Programme** | Un incubateur, une cohorte | **45 000 FCFA/mois** · 450 000/an | 3 appels · 40 dossiers/appel · 5 membres · export bailleur |
-| **Institution** | Un fonds, un réseau, une agence | **150 000 FCFA/mois** | Illimité · multi-pays · marque blanche |
+| **Institution** | Un fonds, un réseau, une agence | **150 000 FCFA/mois** | Illimité · multi-pays (la marque blanche est prévue, pas construite) |
 
 Les limites sont vérifiées **côté serveur** (`lib/plans.ts`, `app/actions/`), jamais seulement
 dans l'interface.
@@ -169,8 +168,8 @@ ce dépôt.
 
 ## Activer un abonnement
 
-Tant que les clients se comptent sur les doigts d'une main, le paiement se fait hors ligne
-(Orange Money, Moov Money, virement) et l'activation passe par un script :
+Pour les premiers clients (il n'y en a pas encore), le paiement se fera hors ligne
+(Orange Money, Moov Money, virement) et l'activation passera par un script :
 
 ```bash
 npm run plan:activer -- "La Fabrique" programme 12 "OM-20260922-4471"
