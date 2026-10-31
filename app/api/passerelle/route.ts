@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { nouvelId, sql } from '@/lib/db';
+import { baseConfiguree, nouvelId, sql } from '@/lib/db';
 import { empreinteJeton, passerelleDisponible, SOURCES } from '@/lib/passerelle';
 
 export const runtime = 'nodejs';
@@ -81,6 +81,7 @@ async function lireCorpsLimite(requete: Request): Promise<string | null> {
 }
 
 export async function POST(requete: Request) {
+  if (!baseConfiguree()) return refus('Base non configurée.', 503);
   if (!passerelleActive) {
     return refus('La passerelle est désactivée en production tant que la protection contre les abus n’est pas configurée.', 503);
   }

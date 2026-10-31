@@ -1,14 +1,15 @@
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { auth } from './auth';
-import { sql } from './db';
+import { getAuth } from './auth';
+import { baseConfiguree, sql } from './db';
 import { planActif, type Plan } from './plans';
 import { peutGerer } from './portefeuille';
 import { verificationEmailRequise } from './email-config';
 import type { Organisation } from './types';
 
 export async function sessionActuelle() {
-  return auth.api.getSession({ headers: await headers() });
+  if (!baseConfiguree()) return null;
+  return getAuth().api.getSession({ headers: await headers() });
 }
 
 export async function exigerUtilisateur() {

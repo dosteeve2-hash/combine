@@ -1,10 +1,12 @@
 import { neon } from '@neondatabase/serverless';
 import { Pool } from 'pg';
 
-if (!process.env.DATABASE_URL) {
-  throw new Error(
-    'DATABASE_URL est absent. Copie .env.example vers .env.local et renseigne la chaîne Postgres.',
-  );
+/** Levée quand la base n'est pas configurée : les routes la traduisent en 503. */
+export class BaseNonConfiguree extends Error {
+  constructor() {
+    super('Base non configurée : DATABASE_URL est absent.');
+    this.name = 'BaseNonConfiguree';
+  }
 }
 
 /** Le contrat commun aux deux pilotes : un gabarit balisé qui rend les lignes. */
@@ -13,8 +15,9 @@ type Requete = <T = Record<string, unknown>>(
   ...valeurs: unknown[]
 ) => Promise<T[]>;
 
-const url = process.env.DATABASE_URL;
-const surNeon = /\.neon\.tech(?::|\/|$)/.test(new URL(url).host + '/');
+export function baseConfiguree(): boolean {
+  return Boolean(process.env.DATABASE_URL);
+}
 
 /**
  * En production on parle à Neon par HTTP : pas de pool à entretenir, ce qui convient
@@ -22,7 +25,7 @@ const surNeon = /\.neon\.tech(?::|\/|$)/.test(new URL(url).host + '/');
  * le pilote `pg`. Les deux exposent exactement le même gabarit balisé, donc le reste
  * du code ne sait pas lequel tourne, et les requêtes restent paramétrées des deux côtés.
  */
-function viaPg(): Requete {
+function viaPg(url: string): Requete {
   const pool = new Pool({ connectionString: url, max: 5 });
   return async <T>(fragments: TemplateStringsArray, ...valeurs: unknown[]) => {
     let texte = '';
@@ -35,10 +38,27 @@ function viaPg(): Requete {
   };
 }
 
-export const sql: Requete = surNeon ? (neon(url) as unknown as Requete) : viaPg();
+let memo: { requete: Requete; ordinaire: boolean } | null = null;
+
+/** La connexion n'est ouverte qu'à la première requête réelle, jamais à l'import ni au build. */
+function connexion() {
+  if (memo) return memo;
+  const url = process.env.DATABASE_URL;
+  if (!url) throw new BaseNonConfiguree();
+  const surNeon = /\.neon\.tech(?::|\/|$)/.test(new URL(url).host + '/');
+  memo = {
+    requete: surNeon ? (neon(url) as unknown as Requete) : viaPg(url),
+    ordinaire: !surNeon,
+  };
+  return memo;
+}
+
+export const sql: Requete = (fragments, ...valeurs) => connexion().requete(fragments, ...valeurs);
 
 /** Vrai quand la base est un Postgres ordinaire plutôt qu'un point d'accès Neon. */
-export const postgresOrdinaire = !surNeon;
+export function postgresOrdinaire(): boolean {
+  return connexion().ordinaire;
+}
 
 /** Identifiant court, lisible, sans caractère ambigu (ni 0/O ni 1/I/l). */
 const ALPHABET = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
