@@ -14,12 +14,15 @@ if (typeof WebSocket !== 'undefined') {
   neonConfig.webSocketConstructor = WebSocket;
 }
 
-const base = postgresOrdinaire
-  ? new PoolPg({ connectionString: process.env.DATABASE_URL, max: 5 })
-  : new PoolNeon({ connectionString: process.env.DATABASE_URL });
+function base() {
+  return postgresOrdinaire()
+    ? new PoolPg({ connectionString: process.env.DATABASE_URL, max: 5 })
+    : new PoolNeon({ connectionString: process.env.DATABASE_URL });
+}
 
-export const auth = betterAuth({
-  database: base,
+function creerAuth() {
+  return betterAuth({
+  database: base(),
   emailAndPassword: {
     enabled: true,
     disableSignUp: !inscriptionDisponible,
@@ -54,6 +57,16 @@ export const auth = betterAuth({
     },
   },
   plugins: [nextCookies()],
-});
+  });
+}
 
-export type Session = typeof auth.$Infer.Session;
+type Auth = ReturnType<typeof creerAuth>;
+let memo: Auth | null = null;
+
+/** Instanciée à la première requête : l'import et le build n'exigent pas de base. */
+export function getAuth(): Auth {
+  return (memo ??= creerAuth());
+}
+
+export type Session = Auth['$Infer']['Session'];
+
